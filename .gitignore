@@ -1,0 +1,8 @@
+# composer libraries
+/vendor/
+
+# PHPStorm meta
+.idea
+
+# PHP Coding Standards Fixer cache file
+.php_cs.cache
