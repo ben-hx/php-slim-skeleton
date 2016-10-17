@@ -2,7 +2,7 @@
 
 require "../../vendor/autoload.php";
 
-use BenHx\Api\Controllers\User\UserController;
+use BenHx\Api\Factory\Factory;
 
 /**
  * @SWG\Swagger(
@@ -36,16 +36,29 @@ $config = [
 
 $app = new \Slim\App($config);
 
+$factory = new Factory();
+$factory->inizializeContainerDI($app->getContainer());
 
-$app->put('/me', 'BenHx\Api\Controllers\User\UserController:updateMe');
-$app->get('/register', 'BenHx\Api\Controllers\User\UserController:register');
-$app->get('/login', 'BenHx\Api\Controllers\User\UserController:login');
-$app->get('/logout', 'BenHx\Api\Controllers\User\UserController:logout');
+
+
+$app->add(new \Slim\Middleware\JwtAuthentication([
+    "path" => ["/"],
+    "secret" => "supersecretkeyyoushouldnotcommittogithub",
+    "passthrough" => ["/register", "/temp"]
+]));
+
+
+$app->put('/me', 'AuthenticationController:updateMe');
+$app->post('/register', 'AuthenticationController:register');
+$app->get('/login', 'AuthenticationController:login');
+$app->get('/logout', 'AuthenticationController:logout');
 
 
 // Add route callbacks
-$app->get('/', function ($request, $response, $args) {
-    return $response->withStatus(200)->write('Hello World!');
+$app->get('/temp', function ($request, $response, $next) {
+    //return $response->withStatus(200)->write("ups".$request->getUri()->getBasePath());
+    //$request->getUri()->getBasePath();
+    print_r ($next);
 });
 
 // Run application

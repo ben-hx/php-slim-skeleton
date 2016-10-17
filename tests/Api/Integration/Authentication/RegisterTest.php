@@ -4,12 +4,13 @@ namespace BenHx\Api;
 
 use BenHx\Api\Helpers\BaseRequestTestCase;
 use BenHx\Api\Helpers\UtilTestHelper;
+use BenHx\Api\Helpers\ExampleDictionaries;
 use BenHx\Api\Models\User\User;
 use BenHx\Api\Models\User\UserSerializer;
 use BenHx\Api\Util\HttpStatusCode;
 use GuzzleHttp;
 
-class AuthenticationControllerTest extends BaseRequestTestCase
+class AuthenticationControllerTest extends \PHPUnit_Framework_TestCase
 {
     protected $client;
 
@@ -18,27 +19,6 @@ class AuthenticationControllerTest extends BaseRequestTestCase
         $this->client = new GuzzleHttp\Client(UtilTestHelper::getGuzzleDefaultConfig());
         UtilTestHelper::truncateDB();
     }
-
-    private $minimalUser = [
-        'username' => 'minimal',
-        'password' => 'minimalPassword',
-    ];
-
-    private $bobUser = [
-        'username' => 'bob',
-        'password' => 'bobPassword',
-        'firstName' => 'bobFirstname',
-        'lastName' => 'bobLastname',
-        'email' => 'bob@mail.com'
-    ];
-
-    private $aliceUser = [
-        'username' => 'alice',
-        'password' => 'alicePassword',
-        'firstName' => 'aliceFirstname',
-        'lastName' => 'aliceLastname',
-        'email' => 'alice@mail.com'
-    ];
 
     private function postExampleUser($user) {
         return $this->client->post('/register', ['json' => $user]);
@@ -68,18 +48,18 @@ class AuthenticationControllerTest extends BaseRequestTestCase
 
     public function testShouldPostAValidUser()
     {
-        $response = $this->postExampleUser($this->bobUser);
+        $response = $this->postExampleUser(ExampleDictionaries::$bobUser);
         $jsonResponse = json_decode($response->getBody(), true);
 
         $this->assertEquals(HttpStatusCode::CREATED, $response->getStatusCode());
         $this->assertTrue($jsonResponse['success']);
 
-        $this->evaluateUserResponse($jsonResponse['data'], $this->bobUser);
+        $this->evaluateUserResponse($jsonResponse['data'], ExampleDictionaries::$bobUser);
     }
 
     public function testShouldPostAMinimalUser()
     {
-        $response = $this->postExampleUser($this->minimalUser);
+        $response = $this->postExampleUser(ExampleDictionaries::$minimalUser);
         $jsonResponse = json_decode($response->getBody(), true);
 
         $this->assertEquals(HttpStatusCode::CREATED, $response->getStatusCode());
@@ -90,7 +70,7 @@ class AuthenticationControllerTest extends BaseRequestTestCase
 
         $this->assertArrayNotHasKey('password', $jsonResponse['data']);
 
-        $this->assertEquals($jsonResponse['data']['username'], $this->minimalUser['username']);
+        $this->assertEquals($jsonResponse['data']['username'], ExampleDictionaries::$minimalUser['username']);
     }
 
     public function testShouldNotPostAUserWithNoCredentials()
@@ -113,10 +93,9 @@ class AuthenticationControllerTest extends BaseRequestTestCase
 
     public function testShouldNotPostTwoUserWithTheSameUsername()
     {
-        $this->postExampleUser($this->bobUser);
-        $response = $this->postExampleUser($this->bobUser);
+        $this->postExampleUser(ExampleDictionaries::$bobUser);
+        $response = $this->postExampleUser(ExampleDictionaries::$bobUser);
         $this->evaluateWrongCredentials($response);
     }
-
 
 }

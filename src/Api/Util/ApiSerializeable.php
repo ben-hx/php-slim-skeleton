@@ -9,7 +9,7 @@
 namespace BenHx\Api\Util;
 
 
-class ApiSerializeable
+interface ApiSerializeable extends \JsonSerializable
 {
 
 }

@@ -24,7 +24,6 @@ class UserTestHelper
     {
         $users = new UserCollection();
         $users->add(self::user());
-
         return $users;
     }
 }

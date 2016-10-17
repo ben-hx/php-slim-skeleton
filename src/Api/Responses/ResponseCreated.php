@@ -9,7 +9,7 @@
 namespace BenHx\Api\Responses;
 
 
-class ResponseCreated
+class ResponseCreated extends ResponseBase
 {
 
 }

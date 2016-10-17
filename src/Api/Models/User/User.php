@@ -86,7 +86,7 @@ class User
      */
     private function verifyEMail(string $email): bool
     {
-        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        if ($email == "" || filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return true;
         }
         return false;
@@ -95,7 +95,7 @@ class User
     /**
      * @return int
      */
-    public function getId(): int
+    public function getId(): string
     {
         return $this->id;
     }

@@ -2,26 +2,35 @@
 
 declare (strict_types = 1);
 
-namespace BenHx\Api\Controllers\User;
+namespace BenHx\Api\Controllers\Authentication;
 
+use BenHx\Api\Controllers\BaseController;
+use BenHx\Api\Exceptions\MissingArgumentException;
+use BenHx\Api\Exceptions\ValidationException;
+use BenHx\Api\Models\User\UserRepository;
+use BenHx\Api\Models\User\UserSerializer;
+use BenHx\Api\Util\HttpStatusCode;
+use BenHx\Api\Util\ApiResponse;
+use BenHx\Api\Util\Util;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Interop\Container\ContainerInterface;
+use Slim\Http\Response;
 
-class UserController
+
+class AuthenticationController extends BaseController
 {
-    protected $ci;
-    //Constructor
-    public function __construct(ContainerInterface $ci) {
-        $this->ci = $ci;
+    protected $userRepository;
+
+    public function __construct(UserRepository $userRepository) {
+        $this->userRepository = $userRepository;
     }
 
     /**
      * @SWG\Post(path="/register",
      *   tags={"user", "register"},
      *   summary="Register user",
-     *   description="Register an new User",
-     *   operationId="registerUser",
+     *   description="Register a new User",
+     *   operationId="register",
      *   produces={"application/json"},
      *   @SWG\Parameter(
      *     in="body",
@@ -33,10 +42,17 @@ class UserController
      *   @SWG\Response(response="default", description="successful operation")
      * )
      */
-    public function register(ServerRequestInterface $request, ResponseInterface $response, $next)
+    public function register(ServerRequestInterface $request, ApiResponse $response)
     {
-        return $response->withStatus(200)->write('Hello World!');
+        try {
+            $result = Util::callMethodFromArray($this->userRepository, "create", $request->getParsedBody());
+        } catch (MissingArgumentException $e) {
+            throw new ValidationException($e->getParam().' is missing!');
+        }
+        return $response->withStatus(HttpStatusCode::CREATED)->withApiSerializeable(new UserSerializer($result));
     }
+
+
 
     /**
      * @SWG\Get(path="/login",

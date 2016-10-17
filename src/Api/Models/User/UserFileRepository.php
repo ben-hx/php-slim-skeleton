@@ -7,6 +7,7 @@ namespace BenHx\Api\Models\User;
 use BenHx\Api\Exceptions\FileNotWritableException;
 use BenHx\Api\Exceptions\FileNotReadableException;
 use BenHx\Api\Exceptions\ValidationException;
+use BenHx\Api\Util\Util;
 
 class UserFileRepository implements UserRepository
 {
@@ -51,12 +52,18 @@ class UserFileRepository implements UserRepository
         }
     }
 
+    /**
+     * @param string $username
+     *
+     * @throws ValidationException
+     */
     private function ensureUsernameDoesNotExist(string $username)
     {
         if (!is_null($this->findByUsername($username))) {
             throw new ValidationException("Username already exists");
         }
     }
+
 
     private function read() : UserCollection
     {
@@ -73,10 +80,10 @@ class UserFileRepository implements UserRepository
         file_put_contents($this->file->getPathname(), serialize($users));
     }
 
-    public function create(string $username, string $password, string $firstName, string $lastName, string $email) : User
+    public function create(string $username, string $password, string $firstName = "", string $lastName = "", string $email = "") : User
     {
         $this->ensureUsernameDoesNotExist($username);
-        $id = random_bytes(7);
+        $id = Util::getRandomId();
         $user = new User($id, $username, $password, $firstName, $lastName, $email);
         $this->write($this->read()->add($user));
         return $user;

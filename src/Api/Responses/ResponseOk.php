@@ -9,7 +9,7 @@
 namespace BenHx\Api\Responses;
 
 
-class ResponseOk
+class ResponseOk extends ResponseBase
 {
 
 }
