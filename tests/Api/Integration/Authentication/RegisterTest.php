@@ -1,101 +1,74 @@
 <?php
 
-namespace BenHx\Api;
+declare (strict_types = 1);
 
-use BenHx\Api\Helpers\BaseRequestTestCase;
-use BenHx\Api\Helpers\UtilTestHelper;
-use BenHx\Api\Helpers\ExampleDictionaries;
-use BenHx\Api\Models\User\User;
-use BenHx\Api\Models\User\UserSerializer;
+namespace BenHx\Api\Test\Integration\Authentication;
+
+use BenHx\Api\Test\Helpers\BaseRequestTestCase;
+use BenHx\Api\Test\Helpers\IntegrationBaseTestCase;
+use BenHx\Api\Test\Helpers\UtilTestHelper;
+use BenHx\Api\Test\Helpers\ExampleDictionaries;
 use BenHx\Api\Util\HttpStatusCode;
-use GuzzleHttp;
 
-class AuthenticationControllerTest extends \PHPUnit_Framework_TestCase
+class AuthenticationControllerTest extends IntegrationBaseTestCase
 {
-    protected $client;
-
     protected function setUp()
     {
-        $this->client = new GuzzleHttp\Client(UtilTestHelper::getGuzzleDefaultConfig());
         UtilTestHelper::truncateDB();
     }
 
-    private function postExampleUser($user) {
-        return $this->client->post('/register', ['json' => $user]);
-    }
-
-    private function evaluateWrongCredentials($response) {
-        $jsonResponse = json_decode($response->getBody(), true);
-        $this->assertEquals(HttpStatusCode::BAD_REQUEST, $response->getStatusCode());
-        $this->assertFalse($jsonResponse['success']);
-        $this->assertArrayHasKey('error', $jsonResponse);
-    }
-
-    private function evaluateUserResponse($response, $user) {
-        $this->assertArrayHasKey('id', $response);
-        $this->assertArrayHasKey('username', $response);
-        $this->assertArrayHasKey('firstname', $response);
-        $this->assertArrayHasKey('lastname', $response);
-        $this->assertArrayHasKey('email', $response);
-
-        $this->assertArrayNotHasKey('password', $response);
-
-        $this->assertEquals($response['username'], $user['username']);
-        $this->assertEquals($response['firstname'], $user['firstName']);
-        $this->assertEquals($response['lastname'], $user['lastName']);
-        $this->assertEquals($response['email'], $user['email']);
-    }
-
-    public function testShouldPostAValidUser()
+    public function testShouldReturnAUserAndTokenWhenPostingAValidUser()
     {
         $response = $this->postExampleUser(ExampleDictionaries::$bobUser);
-        $jsonResponse = json_decode($response->getBody(), true);
+        $jsonResponse = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEquals(HttpStatusCode::CREATED, $response->getStatusCode());
         $this->assertTrue($jsonResponse['success']);
 
-        $this->evaluateUserResponse($jsonResponse['data'], ExampleDictionaries::$bobUser);
+        $this->evaluateUserResponse($jsonResponse['data']['user'], ExampleDictionaries::$bobUser);
+        $this->evaluateTokenResponse($jsonResponse['data']['token'], ExampleDictionaries::$bobUser);
     }
 
-    public function testShouldPostAMinimalUser()
+    public function testShouldReturnAUserAndTokenWhenPostingAMinimalUser()
     {
         $response = $this->postExampleUser(ExampleDictionaries::$minimalUser);
-        $jsonResponse = json_decode($response->getBody(), true);
+        $jsonResponse = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEquals(HttpStatusCode::CREATED, $response->getStatusCode());
         $this->assertTrue($jsonResponse['success']);
 
-        $this->assertArrayHasKey('id', $jsonResponse['data']);
-        $this->assertArrayHasKey('username', $jsonResponse['data']);
+        $this->assertArrayHasKey('id', $jsonResponse['data']['user']);
+        $this->assertArrayHasKey('username', $jsonResponse['data']['user']);
 
-        $this->assertArrayNotHasKey('password', $jsonResponse['data']);
+        $this->assertArrayNotHasKey('password', $jsonResponse['data']['user']);
 
-        $this->assertEquals($jsonResponse['data']['username'], ExampleDictionaries::$minimalUser['username']);
+        $this->assertEquals($jsonResponse['data']['user']['username'], ExampleDictionaries::$minimalUser['username']);
+        $this->evaluateTokenResponse($jsonResponse['data']['token'], ExampleDictionaries::$minimalUser);
     }
 
-    public function testShouldNotPostAUserWithNoCredentials()
+    public function testShouldReturnABadRequestWhenPostingAUserWithNoCredentials()
     {
         $response = $this->postExampleUser([]);
-        $this->evaluateWrongCredentials($response);
+        $this->evaluateBadRequestResponse($response);
     }
 
-    public function testShouldNotPostAUserWithNoUsername()
+    public function testShouldReturnABadRequestWhenPostingAUserWithNoUsername()
     {
         $response = $this->postExampleUser(['password' => 'testpassword']);
-        $this->evaluateWrongCredentials($response);
+        $this->evaluateBadRequestResponse($response);
     }
 
-    public function testShouldNotPostAUserWithNoPassword()
+    public function testShouldReturnABadRequestWhenPostingAUserWithNoPassword()
     {
         $response = $this->postExampleUser(['username' => 'testusername']);
-        $this->evaluateWrongCredentials($response);
+        $this->evaluateBadRequestResponse($response);
     }
 
-    public function testShouldNotPostTwoUserWithTheSameUsername()
+    public function testShouldReturnABadRequestWhenPostingTwoUsersWithTheSameUsername()
     {
         $this->postExampleUser(ExampleDictionaries::$bobUser);
         $response = $this->postExampleUser(ExampleDictionaries::$bobUser);
-        $this->evaluateWrongCredentials($response);
+        $this->evaluateBadRequestResponse($response);
     }
 
 }

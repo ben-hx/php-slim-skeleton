@@ -4,15 +4,18 @@ declare (strict_types = 1);
 
 namespace BenHx\Api\Factory;
 
-use BenHx\Api\Exceptions\ValidationException;
+use BenHx\Api\Exceptions\UnauthorizedException;
+use BenHx\Api\Services\ErrorService;
+use Slim\App;
+use Slim\Http\Headers;
+use Slim\Middleware\JwtAuthentication;
+use Slim\Middleware\HttpBasicAuthentication;
+use Psr\Http\Message\ServerRequestInterface;
+use BenHx\Api\Services\AuthenticationService;
 use BenHx\Api\Util\ApiResponse;
 use BenHx\Api\Util\HttpStatusCode;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Slim\Http\Headers;
 use BenHx\Api\Exceptions\FileNotWritableException;
 use BenHx\Api\Models\User\UserFileRepository;
-use Interop\Container\ContainerInterface;
 use BenHx\Api\Controllers\Authentication\AuthenticationController;
 /**
  * Created by PhpStorm.
@@ -22,13 +25,14 @@ use BenHx\Api\Controllers\Authentication\AuthenticationController;
  */
 class Factory
 {
-    private $config;
+    private $app;
     private $dbBaseDirecotry;
     private $userRepositoryFileName = '\UserRepository';
     private $configPath = __DIR__.'\..\..\..\config.ini';
 
-    public function __construct()
+    public function __construct(App $app)
     {
+        $this->app = $app;
         $this->config = parse_ini_file($this->configPath, true);
         $this->dbBaseDirecotry = $this->config[$this->config['application']['app_mode']]['db_base_dir'];
     }
@@ -45,10 +49,45 @@ class Factory
         }
     }
 
-    public function inizializeContainerDI(ContainerInterface $container)
+    private function unauthorizedErrorHandler($request, $response, $arguments) {
+        $container = $this->app->getContainer();
+        $container["ErrorService"]->responseFromException($request, $response, new UnauthorizedException($arguments["message"]));
+    }
+
+    public function inizializeContainerDI()
     {
+        $container = $this->app->getContainer();
+
+        $container["HttpBasicAuthentication"] = function ($container) {
+            return new HttpBasicAuthentication([
+                "path" => "/token",
+                "authenticator" => $container["AuthenticationService"],
+                "error" => function (ServerRequestInterface $request, ApiResponse $response, array $arguments) {
+                    $this->unauthorizedErrorHandler($request, $response, $arguments);
+                }
+            ]);
+        };
+        $container["token"] = function ($container) {
+            return new Token;
+        };
+        $container["JwtAuthentication"] = function ($container) {
+            return new JwtAuthentication([
+                "path" => "/",
+                "secet" => $this->config['application']['app_secret'],
+                "passthrough" => ["/register", "/token"],
+                "error" => function (ServerRequestInterface $request, ApiResponse $response, array $arguments) {
+                    $this->unauthorizedErrorHandler($request, $response, $arguments);
+                }
+            ]);
+        };
+        $container["ErrorService"] = function ($container) {
+            return new ErrorService();
+        };
+        $container['AuthenticationService'] = function ($container) {
+            return new AuthenticationService($container['UserRepository'], $this->config);
+        };
         $container['AuthenticationController'] = function ($container) {
-            return new AuthenticationController($container['UserRepository']);
+            return new AuthenticationController($container['AuthenticationService'], $container['UserRepository']);
         };
         $container['UserRepository'] = function ($container) {
             return new UserFileRepository($this->getFileInfoForFileName($this->dbBaseDirecotry.$this->userRepositoryFileName));
@@ -61,7 +100,7 @@ class Factory
                         return $container['response']->withStatus(HttpStatusCode::BAD_REQUEST)->withException($exception);
                         break;
                     default:
-                        return $container['response']->withStatus(HttpStatusCode::INTERNAL_SERVER_ERROR)->write($exception);
+                        return $container['response']->withStatus(HttpStatusCode::INTERNAL_SERVER_ERROR)->withException($exception);
                 }
 
             };
@@ -73,5 +112,9 @@ class Factory
         };
     }
 
+    public function inizializeMiddleware() {
+        $this->app->add("HttpBasicAuthentication");
+        $this->app->add("JwtAuthentication");
+    }
 
 }

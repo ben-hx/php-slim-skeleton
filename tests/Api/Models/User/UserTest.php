@@ -2,10 +2,10 @@
 
 declare (strict_types = 1);
 
-namespace BenHx\Api;
+namespace BenHx\Api\Test\Models\User;
 
 use BenHx\Api\Models\User\User;
-use \BenHx\Api\Exceptions\ValidationException;
+use BenHx\Api\Exceptions\ValidationException;
 
 
 class UserTest extends \PHPUnit_Framework_TestCase

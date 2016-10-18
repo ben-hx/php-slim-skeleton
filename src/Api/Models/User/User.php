@@ -1,8 +1,8 @@
 <?php
-
 declare (strict_types = 1);
 
 namespace BenHx\Api\Models\User;
+
 use BenHx\Api\Exceptions\ValidationException;
 
 /**

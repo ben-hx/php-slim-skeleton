@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: ben-hx
- * Date: 17.10.2016
- * Time: 18:44
- */
+declare (strict_types = 1);
 
 namespace BenHx\Api\Util;
 

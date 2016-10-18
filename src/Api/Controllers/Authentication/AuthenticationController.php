@@ -9,6 +9,9 @@ use BenHx\Api\Exceptions\MissingArgumentException;
 use BenHx\Api\Exceptions\ValidationException;
 use BenHx\Api\Models\User\UserRepository;
 use BenHx\Api\Models\User\UserSerializer;
+use BenHx\Api\Serializer\RegisterSerializer;
+use BenHx\Api\Serializer\TokenSerializer;
+use BenHx\Api\Services\AuthenticationService;
 use BenHx\Api\Util\HttpStatusCode;
 use BenHx\Api\Util\ApiResponse;
 use BenHx\Api\Util\Util;
@@ -19,9 +22,11 @@ use Slim\Http\Response;
 
 class AuthenticationController extends BaseController
 {
+    protected $authenticationService;
     protected $userRepository;
 
-    public function __construct(UserRepository $userRepository) {
+    public function __construct(AuthenticationService $authenticationService, UserRepository $userRepository) {
+        $this->authenticationService = $authenticationService;
         $this->userRepository = $userRepository;
     }
 
@@ -45,14 +50,13 @@ class AuthenticationController extends BaseController
     public function register(ServerRequestInterface $request, ApiResponse $response)
     {
         try {
-            $result = Util::callMethodFromArray($this->userRepository, "create", $request->getParsedBody());
+            $user = Util::callMethodFromArray($this->authenticationService, "register", $request->getParsedBody());
+            $token = $this->authenticationService->getToken();
         } catch (MissingArgumentException $e) {
             throw new ValidationException($e->getParam().' is missing!');
         }
-        return $response->withStatus(HttpStatusCode::CREATED)->withApiSerializeable(new UserSerializer($result));
+        return $response->withStatus(HttpStatusCode::CREATED)->withApiSerializeable(new RegisterSerializer($user, $token));
     }
-
-
 
     /**
      * @SWG\Get(path="/login",
@@ -95,23 +99,10 @@ class AuthenticationController extends BaseController
      *   @SWG\Response(response=400, description="Invalid username/password supplied")
      * )
      */
-    public function login()
+    public function token(ServerRequestInterface $request, ApiResponse $response)
     {
-    }
-
-    /**
-     * @SWG\Get(path="/logout",
-     *   tags={"user"},
-     *   summary="Logs out current logged in user session",
-     *   description="",
-     *   operationId="logoutUser",
-     *   produces={"application/json"},
-     *   parameters={},
-     *   @SWG\Response(response="default", description="successful operation")
-     * )
-     */
-    public function logout()
-    {
+        $token = $this->authenticationService->getToken();
+        return $response->withStatus(HttpStatusCode::CREATED)->withApiSerializeable(new TokenSerializer($token));
     }
 
     /**

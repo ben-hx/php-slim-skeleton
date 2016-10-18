@@ -2,7 +2,7 @@
 
 declare (strict_types = 1);
 
-namespace BenHx\Api\Helpers;
+namespace BenHx\Api\Test\Helpers;
 
 class ExampleDictionaries
 {

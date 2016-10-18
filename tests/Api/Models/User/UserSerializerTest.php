@@ -1,12 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: ben-hx
- * Date: 17.10.2016
- * Time: 14:15
- */
 
-namespace BenHx\Api;
+declare (strict_types = 1);
+
+namespace BenHx\Api\Test\Models\User;
 
 use BenHx\Api\Models\User\User;
 use BenHx\Api\Models\User\UserSerializer;

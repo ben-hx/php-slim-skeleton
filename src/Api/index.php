@@ -35,31 +35,15 @@ $config = [
 ];
 
 $app = new \Slim\App($config);
+$factory = new Factory($app);
+$factory->inizializeContainerDI();
+$factory->inizializeMiddleware();
 
-$factory = new Factory();
-$factory->inizializeContainerDI($app->getContainer());
-
-
-
-$app->add(new \Slim\Middleware\JwtAuthentication([
-    "path" => ["/"],
-    "secret" => "supersecretkeyyoushouldnotcommittogithub",
-    "passthrough" => ["/register", "/temp"]
-]));
 
 
 $app->put('/me', 'AuthenticationController:updateMe');
 $app->post('/register', 'AuthenticationController:register');
-$app->get('/login', 'AuthenticationController:login');
-$app->get('/logout', 'AuthenticationController:logout');
-
-
-// Add route callbacks
-$app->get('/temp', function ($request, $response, $next) {
-    //return $response->withStatus(200)->write("ups".$request->getUri()->getBasePath());
-    //$request->getUri()->getBasePath();
-    print_r ($next);
-});
+$app->post('/token', 'AuthenticationController:token');
 
 // Run application
 $app->run();

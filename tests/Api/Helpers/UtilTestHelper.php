@@ -1,15 +1,13 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: ben-hx
- * Date: 12.10.2016
- * Time: 17:31
- */
 
-namespace BenHx\Api\Helpers;
+declare (strict_types = 1);
+
+namespace BenHx\Api\Test\Helpers;
 
 
 use BenHx\Api\Exceptions\FileNotWritableException;
+use BenHx\Api\Models\User\User;
+use Firebase\JWT\JWT;
 
 class UtilTestHelper
 {
@@ -55,6 +53,14 @@ class UtilTestHelper
             'base_uri' => $config['development']['app_base_url'],
             'http_errors' => false
         ];
+    }
+
+    public static function validateToken(string $token, string $username) {
+        $config = UtilTestHelper::getConfig();
+        $secret = $config['application']['app_secret'];
+        $algorithm = $config['application']['app_secret_algorithm'];
+        $decoded = JWT::decode($token, $secret, array($algorithm));
+        return $decoded->sub == $username;
     }
 
     public static function truncateUserRepository()
