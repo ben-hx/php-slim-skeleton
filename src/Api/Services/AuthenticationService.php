@@ -7,7 +7,7 @@ use BenHx\Api\Models\User\User;
 use BenHx\Api\Models\User\UserRepository;
 use Slim\Middleware\HttpBasicAuthentication\AuthenticatorInterface;
 use Firebase\JWT\JWT;
-
+use Slim\Middleware\JwtAuthentication;
 use Tuupola\Base62;
 
 
@@ -15,24 +15,25 @@ class AuthenticationService implements AuthenticatorInterface
 {
     private $userRepository;
     private $currentUser;
-    private $config;
+    private $jwtAuthentication;
 
     /**
      * AuthenticationService constructor.
      * @param $userRepository
      */
-    public function __construct(UserRepository $userRepository, array $config)
+    public function __construct(UserRepository $userRepository, JwtAuthentication $jwtAuthentication)
     {
         $this->userRepository = $userRepository;
         $this->currentUser = null;
-        $this->config = $config;
+        $this->userNameFromToken = "";
+        $this->jwtAuthentication = $jwtAuthentication;
     }
 
     public function __invoke(array $arguments) {
-        return $this->authenticate($arguments['user'], $arguments['password']);
+        return $this->authenticateByUserNameAndPassword($arguments['user'], $arguments['password']);
     }
 
-    public function register(string $username, string $password, string $firstName = "", string $lastName = "", string $email = ""): User {
+    public function register(string $username, string $password, string $firstName = "", string $lastName = "", string $email = "") {
         $result = $this->userRepository->create($username, $password, $firstName, $lastName, $email);
         if ($result !== null) {
             $this->currentUser = $result;
@@ -40,7 +41,11 @@ class AuthenticationService implements AuthenticatorInterface
         return $result;
     }
 
-    private function authenticate(string $username, string $password) {
+    private function isTokenAuthenticated() {
+        return $this->userNameFromToken !== '';
+    }
+
+    private function authenticateByUserNameAndPassword(string $username, string $password) {
         $user = $this->userRepository->findByUsername($username);
         if ($user !== null && $user->verifyPassword($password)) {
             $this->currentUser = $user;
@@ -50,10 +55,29 @@ class AuthenticationService implements AuthenticatorInterface
     }
 
     /**
+     * @return string
+     */
+    public function getUserNameFromToken(): string
+    {
+        return $this->userNameFromToken;
+    }
+
+    /**
+     * @param string $userNameFromToken
+     */
+    public function setUserNameFromToken(string $userNameFromToken)
+    {
+        $this->userNameFromToken = $userNameFromToken;
+    }
+
+    /**
      * @return User
      */
     public function getCurrentUser()
     {
+        if ($this->isTokenAuthenticated()) {
+            $this->currentUser = $this->userRepository->findByUsername($this->userNameFromToken);
+        }
         return $this->currentUser;
     }
 
@@ -68,8 +92,9 @@ class AuthenticationService implements AuthenticatorInterface
             "jti" => $jti,
             "sub" => $this->currentUser->getUsername(),
         ];
-        $secret = $this->config['application']['app_secret'];
-        $algorithm = $this->config['application']['app_secret_algorithm'];
+        $secret = $this->jwtAuthentication->getSecret();
+        $algorithm = $this->jwtAuthentication->getAlgorithm();
         return JWT::encode($payload, $secret, $algorithm);
     }
+
 }

@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: ben-hx
- * Date: 18.10.2016
- * Time: 17:27
- */
+declare (strict_types = 1);
 
 namespace BenHx\Api\Test\Integration\Authentication;
 
@@ -18,15 +13,6 @@ class TokenTest extends IntegrationBaseTestCase
     protected function setUp()
     {
         UtilTestHelper::truncateDB();
-    }
-
-    protected function postToken($user) {
-        return self::$httpClient->post('/token',  [
-            'auth' => [
-                $user['username'],
-                $user['password']
-            ]
-        ]);
     }
 
     public function testShouldReturnAValidTokenWhenPostingUserCredentials()
@@ -47,12 +33,12 @@ class TokenTest extends IntegrationBaseTestCase
         $this->postExampleUser($badBob);
         $badBob['password'] = "falsepassword";
         $response = $this->postToken($badBob);
-        $this->evaluateUnauthorizedResponse($response);
+        $this->evaluateErrorResponse(HttpStatusCode::UNAUTHORIZED, $response);
     }
 
     public function testShouldReturnUnauthorizedWhenPostingUnknownUser()
     {
         $response = $this->postToken(ExampleDictionaries::$bobUser);
-        $this->evaluateUnauthorizedResponse($response);
+        $this->evaluateErrorResponse(HttpStatusCode::UNAUTHORIZED, $response);
     }
 }

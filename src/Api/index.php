@@ -28,6 +28,8 @@ use BenHx\Api\Factory\Factory;
  * )
  */
 
+
+
 $config = [
     'settings' => [
         'displayErrorDetails' => true
@@ -42,6 +44,7 @@ $factory->inizializeMiddleware();
 
 
 $app->put('/me', 'AuthenticationController:updateMe');
+$app->get('/me', 'AuthenticationController:getMe');
 $app->post('/register', 'AuthenticationController:register');
 $app->post('/token', 'AuthenticationController:token');
 

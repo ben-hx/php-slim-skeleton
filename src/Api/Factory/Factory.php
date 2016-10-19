@@ -51,7 +51,7 @@ class Factory
 
     private function unauthorizedErrorHandler($request, $response, $arguments) {
         $container = $this->app->getContainer();
-        $container["ErrorService"]->responseFromException($request, $response, new UnauthorizedException($arguments["message"]));
+        $container["ErrorService"]->responseFromException($request, $response, new UnauthorizedException(implode(",", $arguments)));
     }
 
     public function inizializeContainerDI()
@@ -73,10 +73,14 @@ class Factory
         $container["JwtAuthentication"] = function ($container) {
             return new JwtAuthentication([
                 "path" => "/",
-                "secet" => $this->config['application']['app_secret'],
+                "secret" => $this->config['application']['app_secret'],
+                "algorithm" => $this->config['application']['app_secret_algorithm'],
                 "passthrough" => ["/register", "/token"],
                 "error" => function (ServerRequestInterface $request, ApiResponse $response, array $arguments) {
                     $this->unauthorizedErrorHandler($request, $response, $arguments);
+                },
+                "callback" => function ($request, $response, $arguments) use ($container) {
+                    $container["AuthenticationService"]->setUserNameFromToken($arguments["decoded"]->sub);
                 }
             ]);
         };
@@ -84,7 +88,7 @@ class Factory
             return new ErrorService();
         };
         $container['AuthenticationService'] = function ($container) {
-            return new AuthenticationService($container['UserRepository'], $this->config);
+            return new AuthenticationService($container['UserRepository'], $container["JwtAuthentication"]);
         };
         $container['AuthenticationController'] = function ($container) {
             return new AuthenticationController($container['AuthenticationService'], $container['UserRepository']);

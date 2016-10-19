@@ -2,7 +2,7 @@
 
 declare (strict_types = 1);
 
-namespace BenHx\Api\Test\Models\User;
+namespace BenHx\Api\Test\Unit\Models\User;
 
 use BenHx\Api\Models\User\User;
 use BenHx\Api\Exceptions\ValidationException;

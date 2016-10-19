@@ -9,6 +9,7 @@ use BenHx\Api\Exceptions\MissingArgumentException;
 use BenHx\Api\Exceptions\ValidationException;
 use BenHx\Api\Models\User\UserRepository;
 use BenHx\Api\Models\User\UserSerializer;
+use BenHx\Api\Serializer\MeSerializer;
 use BenHx\Api\Serializer\RegisterSerializer;
 use BenHx\Api\Serializer\TokenSerializer;
 use BenHx\Api\Services\AuthenticationService;
@@ -125,5 +126,29 @@ class AuthenticationController extends BaseController
      */
     public function updateMe()
     {
+    }
+
+    /**
+     * @SWG\Get(path="/me",
+     *   tags={"user"},
+     *   summary="Get user",
+     *   description="This can only be done by the logged in user.",
+     *   operationId="updateUser",
+     *   produces={"application/json"},
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     description="Updated user object",
+     *     required=false,
+     *     @SWG\Schema(ref="#/definitions/User")
+     *   ),
+     *   @SWG\Response(response=400, description="Invalid user supplied"),
+     *   @SWG\Response(response=404, description="User not found")
+     * )
+     */
+    public function getMe(ServerRequestInterface $request, ApiResponse $response)
+    {
+        $me = $this->authenticationService->getCurrentUser();
+        return $response->withStatus(HttpStatusCode::OK)->withApiSerializeable(new MeSerializer($me));
     }
 }

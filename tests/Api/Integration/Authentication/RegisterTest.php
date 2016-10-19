@@ -49,26 +49,26 @@ class AuthenticationControllerTest extends IntegrationBaseTestCase
     public function testShouldReturnABadRequestWhenPostingAUserWithNoCredentials()
     {
         $response = $this->postExampleUser([]);
-        $this->evaluateBadRequestResponse($response);
+        $this->evaluateErrorResponse(HttpStatusCode::BAD_REQUEST, $response);
     }
 
     public function testShouldReturnABadRequestWhenPostingAUserWithNoUsername()
     {
         $response = $this->postExampleUser(['password' => 'testpassword']);
-        $this->evaluateBadRequestResponse($response);
+        $this->evaluateErrorResponse(HttpStatusCode::BAD_REQUEST, $response);
     }
 
     public function testShouldReturnABadRequestWhenPostingAUserWithNoPassword()
     {
         $response = $this->postExampleUser(['username' => 'testusername']);
-        $this->evaluateBadRequestResponse($response);
+        $this->evaluateErrorResponse(HttpStatusCode::BAD_REQUEST, $response);
     }
 
     public function testShouldReturnABadRequestWhenPostingTwoUsersWithTheSameUsername()
     {
         $this->postExampleUser(ExampleDictionaries::$bobUser);
         $response = $this->postExampleUser(ExampleDictionaries::$bobUser);
-        $this->evaluateBadRequestResponse($response);
+        $this->evaluateErrorResponse(HttpStatusCode::BAD_REQUEST, $response);
     }
 
 }

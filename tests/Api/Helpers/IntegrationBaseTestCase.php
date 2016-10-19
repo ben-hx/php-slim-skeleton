@@ -27,16 +27,25 @@ abstract class IntegrationBaseTestCase extends \PHPUnit_Framework_TestCase
         return self::$httpClient->post('/register', ['json' => $user]);
     }
 
-    protected function evaluateBadRequestResponse($response) {
-        $jsonResponse = json_decode($response->getBody()->getContents(), true);
-        $this->assertEquals(HttpStatusCode::BAD_REQUEST, $response->getStatusCode());
-        $this->assertFalse($jsonResponse['success']);
-        $this->assertArrayHasKey('error', $jsonResponse);
+    protected function postToken($user) {
+        return self::$httpClient->post('/token',  [
+            'auth' => [
+                $user['username'],
+                $user['password']
+            ]
+        ]);
     }
 
-    protected function evaluateUnauthorizedResponse($response) {
+    protected function getToken($user) {
+        $restul = self::postToken($user);
+        $response = $this->postToken($user);
         $jsonResponse = json_decode($response->getBody()->getContents(), true);
-        $this->assertEquals(HttpStatusCode::UNAUTHORIZED, $response->getStatusCode());
+        return $jsonResponse['data']['token'];
+    }
+
+    protected function evaluateErrorResponse(int $statusCode, $response) {
+        $jsonResponse = json_decode($response->getBody()->getContents(), true);
+        $this->assertEquals($statusCode, $response->getStatusCode());
         $this->assertFalse($jsonResponse['success']);
         $this->assertArrayHasKey('error', $jsonResponse);
     }
