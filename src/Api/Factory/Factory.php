@@ -34,7 +34,7 @@ class Factory
     {
         $this->app = $app;
         $this->config = parse_ini_file($this->configPath, true);
-        $this->dbBaseDirecotry = $this->config[$this->config['application']['app_mode']]['db_base_dir'];
+        $this->dbBaseDirecotry = realpath('../../'.$this->config[$this->config['application']['app_mode']]['db_base_dir']);
     }
 
     private function getFileInfoForFileName($fileNameWithPath)
@@ -45,7 +45,7 @@ class Factory
             return new \SplFileInfo($fileNameWithPath);
         } else {
             fclose($fileHandle);
-            throw new FileNotWritableException();
+            throw new FileNotWritableException($fileNameWithPath);
         }
     }
 
