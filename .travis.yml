@@ -15,12 +15,14 @@ cache:
     - $HOME/.composer/cache
 
 script:
-    - touch db/development/UserRepository
+    - pwd
+    - ls -l bin/
+    - ls -l
     - chmod +rwx db/development/UserRepository
     - php -S localhost:8000 &
     - mkdir -p build/logs
     - vendor/bin/phpunit -c phpunit.xml.dist --coverage-text --coverage-clover ./build/logs/clover.xml
-    - bin/check-code-cov
+    - bash bin/check-code-cov
 
 after_script:
     - php vendor/bin/coveralls -v
