@@ -8,9 +8,7 @@ before_script:
     - composer require "satooshi/php-coveralls:^1.0"
 
 script:
-    - mkdir -p build/logs
-    - vendor/bin/phpunit -c phpunit.xml.dist --coverage-text --coverage-clover ./build/logs/clover.xml
-    - bin/check-code-cov
+    - vendor/bin/phpunit -c phpunit.xml.dist
 
 before_script:
   - sudo apt-get update
@@ -25,5 +23,3 @@ before_script:
   - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place /etc/apache2/sites-available/default
   - sudo service apache2 restart
 
-after_script:
-    - php vendor/bin/coveralls -v
