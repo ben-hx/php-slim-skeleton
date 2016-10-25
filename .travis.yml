@@ -4,7 +4,6 @@ php:
     - 7.0
 
 before_script:
-    - chmod +x db
     - composer install --prefer-source
     - composer require "satooshi/php-coveralls:^1.0"
 
@@ -14,6 +13,8 @@ cache:
     - $HOME/.composer/cache
 
 script:
+    - touch db/development/UserRepository
+    - chmod +rwx db
     - php -S localhost:8000 -t src/Api/ &
     - mkdir -p build/logs
     - vendor/bin/phpunit -c phpunit.xml.dist --coverage-text --coverage-clover ./build/logs/clover.xml
