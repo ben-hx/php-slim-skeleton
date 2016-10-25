@@ -19,7 +19,12 @@ before_script:
     - composer install --prefer-source
     - composer require "satooshi/php-coveralls:^1.0"
 
+cache:
+  directories:
+    - $HOME/.composer/cache
+
 script:
+    #- php -S localhost:8000 -t public/ &
     - mkdir -p build/logs
     - vendor/bin/phpunit -c phpunit.xml.dist --coverage-text --coverage-clover ./build/logs/clover.xml
     - bin/check-code-cov
