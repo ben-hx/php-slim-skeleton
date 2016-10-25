@@ -40,12 +40,13 @@ class Factory
     private function getFileInfoForFileName($fileNameWithPath)
     {
         //echo $fileNameWithPath;
-        $fileHandle = fopen($fileNameWithPath, 'a');
+        //$fileHandle = fopen($fileNameWithPath, 'a');
+        $fileHandle = true;
         if ($fileHandle) {
-            fclose($fileHandle);
+            //fclose($fileHandle);
             return new \SplFileInfo($fileNameWithPath);
         } else {
-            fclose($fileHandle);
+            //fclose($fileHandle);
             throw new FileNotWritableException($fileNameWithPath);
         }
     }
