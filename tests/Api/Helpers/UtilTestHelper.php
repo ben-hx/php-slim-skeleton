@@ -66,7 +66,7 @@ class UtilTestHelper
     public static function truncateUserRepository()
     {
         $config = UtilTestHelper::getConfig();
-        $file = realpath($config['development']['db_base_dir'].'\UserRepository');
+        $file = realpath($config['development']['db_base_dir'].DIRECTORY_SEPARATOR.'UserRepository');
         UtilTestHelper::setFileContentEmpty($file);
     }
 

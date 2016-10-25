@@ -27,14 +27,14 @@ class Factory
 {
     private $app;
     private $dbBaseDirecotry;
-    private $userRepositoryFileName = '\UserRepository';
-    private $configPath = __DIR__.'\..\..\..\config.ini';
+    private $userRepositoryFileName = DIRECTORY_SEPARATOR.'UserRepository';
+    private $configPath = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'config.ini';
 
     public function __construct(App $app)
     {
         $this->app = $app;
         $this->config = parse_ini_file($this->configPath, true);
-        $this->dbBaseDirecotry = realpath('../../'.$this->config[$this->config['application']['app_mode']]['db_base_dir']);
+        $this->dbBaseDirecotry = realpath('..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.$this->config[$this->config['application']['app_mode']]['db_base_dir']);
     }
 
     private function getFileInfoForFileName($fileNameWithPath)
