@@ -4,11 +4,13 @@ php:
     - 7.0
 
 before_script:
+    - chmod +rwx db
     - composer install --prefer-source
     - composer require "satooshi/php-coveralls:^1.0"
 
 cache:
   directories:
+    - vendor
     - $HOME/.composer/cache
 
 script:
