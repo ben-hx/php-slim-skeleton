@@ -95,8 +95,8 @@ class Factory
         };
         $container['UserRepository'] = function ($container) {
             //return new UserFileRepository($this->getFileInfoForFileName($this->dbBaseDirecotry.$this->userRepositoryFileName));
-            throw new \Exception(getcwd());
-            return new UserFileRepository(new \SplFileInfo('./db/evelopment/UserRepository'));
+            //throw new \Exception(getcwd());
+            return new UserFileRepository(new \SplFileInfo('db/evelopment/UserRepository'));
         };
         $container['errorHandler'] = function ($container) {
             return function (ServerRequestInterface $request, ApiResponse $response, \Exception $exception) use ($container) {
