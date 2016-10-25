@@ -39,6 +39,7 @@ class Factory
 
     private function getFileInfoForFileName($fileNameWithPath)
     {
+        echo $fileNameWithPath;
         $fileHandle = fopen($fileNameWithPath, 'a');
         if ($fileHandle) {
             fclose($fileHandle);

@@ -16,8 +16,8 @@ cache:
 
 script:
     - touch db/development/UserRepository
-    - chmod +rwx db
-    - php -S localhost:8000 -t src/Api/ &
+    - chmod +rwx db/development/UserRepository
+    - sudo php -S localhost:8000 -t src/Api/ &
     - mkdir -p build/logs
     - vendor/bin/phpunit -c phpunit.xml.dist --coverage-text --coverage-clover ./build/logs/clover.xml
     - bin/check-code-cov
