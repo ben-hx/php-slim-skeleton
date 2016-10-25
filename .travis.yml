@@ -4,7 +4,7 @@ php:
     - 7.0
 
 before_script:
-    - chmod +rwx db
+    - chmod +x db
     - composer install --prefer-source
     - composer require "satooshi/php-coveralls:^1.0"
 
