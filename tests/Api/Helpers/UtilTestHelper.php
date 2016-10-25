@@ -8,6 +8,7 @@ namespace BenHx\Api\Test\Helpers;
 use BenHx\Api\Exceptions\FileNotWritableException;
 use BenHx\Api\Models\User\User;
 use Firebase\JWT\JWT;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 class UtilTestHelper
 {
@@ -67,7 +68,9 @@ class UtilTestHelper
     {
         $config = UtilTestHelper::getConfig();
         $file = realpath($config['development']['db_base_dir'].DIRECTORY_SEPARATOR.'UserRepository');
-        UtilTestHelper::setFileContentEmpty($file);
+        if ($file) {
+            UtilTestHelper::setFileContentEmpty($file);
+        }
     }
 
     public static function truncateDB()
