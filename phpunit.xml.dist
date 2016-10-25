@@ -17,12 +17,6 @@
         </whitelist>
     </filter>
 
-    <php>
-        <const name="WEB_SERVER_HOST" value="localhost" />
-        <const name="WEB_SERVER_PORT" value="1349" />
-        <const name="WEB_SERVER_DOCROOT" value="src/Api/index.php" />
-    </php>
-
     <listeners>
         <listener class="BenHx\Api\Test\Base\TestListener" file="./tests/Base/TestListener.php"></listener>
     </listeners>
