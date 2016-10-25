@@ -10,7 +10,7 @@ use BenHx\Api\Test\Helpers\UtilTestHelper;
 use BenHx\Api\Test\Helpers\ExampleDictionaries;
 use BenHx\Api\Util\HttpStatusCode;
 
-class AuthenticationControllerTest extends IntegrationBaseTestCase
+class RegisterTest extends IntegrationBaseTestCase
 {
     protected function setUp()
     {
@@ -21,6 +21,7 @@ class AuthenticationControllerTest extends IntegrationBaseTestCase
     {
         $response = $this->postExampleUser(ExampleDictionaries::$bobUser);
         $jsonResponse = json_decode($response->getBody()->getContents(), true);
+        print_r($jsonResponse['data']);
 
         $this->assertEquals(HttpStatusCode::CREATED, $response->getStatusCode());
         $this->assertTrue($jsonResponse['success']);
