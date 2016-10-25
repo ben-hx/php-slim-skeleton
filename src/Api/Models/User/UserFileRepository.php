@@ -64,7 +64,6 @@ class UserFileRepository implements UserRepository
         }
     }
 
-
     private function read() : UserCollection
     {
         $fileContent = file_get_contents($this->file->getPathname());

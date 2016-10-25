@@ -1,6 +1,6 @@
 <?php
 
-require "../../vendor/autoload.php";
+require "vendor/autoload.php";
 
 use BenHx\Api\Factory\Factory;
 
@@ -40,7 +40,6 @@ $app = new \Slim\App($config);
 $factory = new Factory($app);
 $factory->inizializeContainerDI();
 $factory->inizializeMiddleware();
-
 
 
 $app->put('/me', 'AuthenticationController:updateMe');

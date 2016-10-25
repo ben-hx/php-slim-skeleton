@@ -10,7 +10,6 @@ namespace BenHx\Api\Util;
 
 use BenHx\Api\Exceptions\MissingArgumentException;
 use ReflectionMethod;
-use Exception;
 
 class Util
 {

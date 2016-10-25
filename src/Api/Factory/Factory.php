@@ -34,19 +34,17 @@ class Factory
     {
         $this->app = $app;
         $this->config = parse_ini_file($this->configPath, true);
-        $this->dbBaseDirecotry = realpath('..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.$this->config[$this->config['application']['app_mode']]['db_base_dir']);
+        $this->dbBaseDirecotry = realpath($this->config[$this->config['application']['app_mode']]['db_base_dir']);
     }
 
     private function getFileInfoForFileName($fileNameWithPath)
     {
-        //echo $fileNameWithPath;
-        //$fileHandle = fopen($fileNameWithPath, 'a');
-        $fileHandle = true;
+        $fileHandle = fopen($fileNameWithPath, 'a');
         if ($fileHandle) {
-            //fclose($fileHandle);
+            fclose($fileHandle);
             return new \SplFileInfo($fileNameWithPath);
         } else {
-            //fclose($fileHandle);
+            fclose($fileHandle);
             throw new FileNotWritableException($fileNameWithPath);
         }
     }
