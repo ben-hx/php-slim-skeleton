@@ -21,7 +21,6 @@ class RegisterTest extends IntegrationBaseTestCase
     {
         $response = $this->postExampleUser(ExampleDictionaries::$bobUser);
         $jsonResponse = json_decode($response->getBody()->getContents(), true);
-        print_r($jsonResponse);
 
         $this->assertEquals(HttpStatusCode::CREATED, $response->getStatusCode());
         $this->assertTrue($jsonResponse['success']);
