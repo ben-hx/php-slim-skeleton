@@ -93,6 +93,14 @@ class User
     }
 
     /**
+     * @return bool
+     */
+    public function verifyPassword(string $otherPassword): bool
+    {
+        return password_verify($otherPassword, $this->password);
+    }
+
+    /**
      * @return int
      */
     public function getId(): string
@@ -139,13 +147,4 @@ class User
     {
         return $this->email;
     }
-
-    /**
-     * @return bool
-     */
-    public function verifyPassword(string $otherPassword): bool
-    {
-        return password_verify($otherPassword, $this->password);
-    }
-
 }

@@ -28,7 +28,7 @@ class Factory
     private $app;
     private $dbBaseDirecotry;
     private $userRepositoryFileName = DIRECTORY_SEPARATOR.'UserRepository';
-    private $configPath = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'config.ini';
+    private $configPath = 'config.ini';//__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'config.ini';
 
     public function __construct(App $app)
     {
@@ -94,9 +94,9 @@ class Factory
             return new AuthenticationController($container['AuthenticationService'], $container['UserRepository']);
         };
         $container['UserRepository'] = function ($container) {
-            //return new UserFileRepository($this->getFileInfoForFileName($this->dbBaseDirecotry.$this->userRepositoryFileName));
+            return new UserFileRepository($this->getFileInfoForFileName($this->dbBaseDirecotry.DIRECTORY_SEPARATOR.'UserRepository'));
             //throw new \Exception(getcwd());
-            return new UserFileRepository(new \SplFileInfo('db/development/UserRepository'));
+            //return new UserFileRepository(new \SplFileInfo('db/development/UserRepository'));
         };
         $container['errorHandler'] = function ($container) {
             return function (ServerRequestInterface $request, ApiResponse $response, \Exception $exception) use ($container) {
