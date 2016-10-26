@@ -22,7 +22,7 @@ script:
     - php -S localhost:8000 &
     - mkdir -p build/logs
     - vendor/bin/phpunit -c phpunit.xml.dist --coverage-text --coverage-clover ./build/logs/clover.xml
-    - bash bin/check-code-cov
+    #- bin/check-code-cov
 
 after_script:
     - php vendor/bin/coveralls -v
