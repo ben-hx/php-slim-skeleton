@@ -19,7 +19,7 @@ script:
     - ls -l bin/
     - ls -l
     - chmod +rwx db/development/UserRepository
-    - php -S localhost:80 &
+    - php -S localhost:8000 &
     - mkdir -p build/logs
     - vendor/bin/phpunit -c phpunit.xml.dist --coverage-text --coverage-clover ./build/logs/clover.xml
     #- bin/check-code-cov
